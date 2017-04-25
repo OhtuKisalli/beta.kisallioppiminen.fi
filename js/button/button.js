@@ -7,6 +7,10 @@ class Button {
     };
   }
 
+  /**
+   * Changes header color based on the color ID
+   * @param  {String} id Color ID
+   */
   _changeProblemHeaderColor(id) {
     const obj = this;
     const problemID = id.substr(2, id.length - 1);
@@ -44,7 +48,7 @@ class Button {
       buttonGroup.appendChild(view.createButton(2, id));
       buttonDiv.appendChild(buttonGroup);
 
-      $(value).find("div:nth-child(2)").append(buttonDiv);
+      $(value).find("div:nth-child(2):last-child").append(buttonDiv);
     });
 
     // Add listener
@@ -173,6 +177,10 @@ class Button {
       );
   }
 
+  /**
+   * Appends course related exercise statistics to exercise header
+   * @param  {Obj} data JSON data
+   */
   _markStats(data) {
     console.log(data);
     $("div.stats").remove();
@@ -183,6 +191,10 @@ class Button {
     });
   }
 
+  /**
+   * Gets course related exercise statistics from backend
+   * @param  {Integer} id Course ID
+   */
   _getStats(id) {
     console.log("Getting stats");
     const obj = this;
@@ -198,6 +210,10 @@ class Button {
       );
   }
 
+  /**
+   * Init function
+   * @param  {Obj} data Course data in JSON
+   */
   init(data) {
     console.log(data);
     this._extractCourseData(data, this._getHTMLID(window.location.pathname));
@@ -212,6 +228,12 @@ class Button {
     }
   }
 
+  /**
+   * Displays a modal window so that the teacher can select which course statistics they wish to see.
+   * @param  {String} htmlID Course HTML ID
+   * @param  {Array} keys   Course IDs
+   * @param  {Obj} data   Course data
+   */
   _invokeCourseSelect(htmlID, keys, data) {
     let obj = this;
     $('#courseSelectModalTitle').html(`Opetat useampaa ${htmlID.toUpperCase()}-kurssia. Valitse listalta mitä kurssisuorituksia haluat katsoa.`);
@@ -221,7 +243,7 @@ class Button {
     }
     $('#courseSelectModal').modal('toggle');
 
-    $('#selectCourseButton').click(function (value) {
+    $('#selectCourseButton').click(function () {
       let coursekey = $('#selectCourse').serializeArray().reduce(function (obj, item) {
         obj[item.name] = item.value;
         return obj;
@@ -239,6 +261,20 @@ class Button {
     });
   }
 
+  _isTeacherCourse(data) {
+    for (let i in data) {
+      let course = data[i];
+      if (course.coursekey === this.courseData.coursekey) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Extracts current course (Teacher)
+   * @param  {Obj} data JSON course data
+   */
   _extractTeacherCourses(data) {
     let htmlID = this._getHTMLID(window.location.pathname);
     let keys = [];
@@ -261,8 +297,9 @@ class Button {
         }
       }
     }
-    this._getStats(this.courseData.course_id);
-    console.log(this.courseData.coursekey);
+    if (this.courseData.course_id.length !== 0 && this._isTeacherCourse(data)) {
+      this._getStats(this.courseData.course_id);
+    }
     if (this.courseData.coursekey.length > 1) {
       $('html body main.has-atop article article section header:first').append(`<h3>Valittu kurssi: <tt><span id="currentCourse">${this.courseData.coursekey}<span></tt></h3>`);
     }
@@ -275,11 +312,19 @@ class Button {
     }
   }
 
+  /**
+   * Init function (Teacher)
+   * @param  {Obj} data Course data
+   */
   initTeacher(data) {
     this._extractTeacherCourses(data);
     console.log(data);
   }
 
+  /**
+   * Switches class visibility
+   * @param  {String} className Class name
+   */
   toggleVisibilityByClass(className) {
     let arrayOfElements = document.getElementsByClassName(className);
     for (let i = 0; i < arrayOfElements.length; i++) {
@@ -313,7 +358,8 @@ $(document).ready(function () {
             console.warn(data);
           }
         );
-    } else {
+    }
+    if (document.getCookie('student') === 'true') {
       backend.get(`students/${Session.getUserId()}/courses`)
         .then(
           function fulfilled(data) {

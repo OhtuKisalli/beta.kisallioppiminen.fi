@@ -4,27 +4,19 @@
 
 class Scoreboard {
 
-  static _compare(a, b) {
-    if (a.user < b.user)
-      return -1;
-    if (a.user > b.user)
-      return 1;
-    return 0;
-  }
-
   static getFullScreenLink(id, html_id, coursekey) {
     return `scoreboard.html?id=${encodeURIComponent(id)}&html_id=${encodeURIComponent(html_id)}&coursekey=${coursekey}`;
   }
 
   static createTable(courseData, exercises, table_id, course) {
-    courseData.sort(Scoreboard._compare);
-
     const keys = {
       "green": 0,
       "yellow": 1,
       "red": 2,
       "gray": 3
     };
+
+    const scheduleColors = ['#ffffff', '#da9887', '#87b2da', '#c4da87', '#f9bb81', '#eae981'];
 
     let id = Math.random().toString(36).substring(7);
 
@@ -41,6 +33,7 @@ class Scoreboard {
     console.log(courseData);
     for (let j in courseData) {      
       let student = courseData[j];
+
       let row = view.createName(student.user);
 
       for (let k in student.exercises) {
@@ -48,10 +41,25 @@ class Scoreboard {
         let exercise = student.exercises.filter(function (obj) {
           return obj.id == correctExercise.id;
         });
-        let checkmark = view.createCheckmark(keys[exercise[0].status], exercise[0].status, student.user, correctExercise.number);
-        row.appendChild(checkmark);
+        if (exercise.length === 1) {
+          console.log(student.color);
+          let checkmark;
+          if(student.color === undefined) {
+            checkmark = view.createCheckmark(keys[exercise[0].status], exercise[0].status, student.user, correctExercise.number);            
+          } else {
+            checkmark = view.createScheduleMark(scheduleColors[student.color], exercise[0].status, student.user, correctExercise.number);
+          }
+          row.appendChild(checkmark);
+        } else {
+          let checkmark = view.createCheckmark(3, 'gray', student.user, correctExercise.number);
+          row.appendChild(checkmark);          
+        }
       }
-      scoreboard.querySelector('tbody').appendChild(row);
+      if (student.color != undefined) {
+        scoreboard.querySelector('tfoot').appendChild(row);
+      } else {
+        scoreboard.querySelector('tbody').appendChild(row);        
+      }
     }
 
     $('div[id=checkmarkTable' + table_id + ']').html(scoreboard);
@@ -71,7 +79,7 @@ class Scoreboard {
     $('[data-toggle="tooltip"]').tooltip();
 
     // make table sortable
-    if (table_id.length > 1 && courseData.length > 1) {
+    if (table_id.length > 1 && courseData.length > 1 && !window.location.pathname.includes('/omat_kurssit.html')) {
       console.log(id);
       let nto = document.getElementById(id);
       console.log(nto);

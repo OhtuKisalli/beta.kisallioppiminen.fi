@@ -10,12 +10,11 @@ flatpickr(".flatpickr", {
 
 class Course {
 
-  static createCoursePost(data, exercises) {
+  static createCoursePost(data) {
     let course = {
       html_id: data.courseSelect,
       coursekey: data.coursekey,
       name: data.courseName,
-      exercises: exercises,
       startdate: data.startDate,
       enddate: data.endDate
     };
@@ -37,8 +36,7 @@ class Course {
     $.ajax({
       url: FRONTEND_BASE_URL + `kurssit/${data.courseSelect}/print.html`,
       success: function (pageData) {
-        let exercises = Exercises.extractExercises(pageData);
-        Course.createCoursePost(data, exercises);
+        Course.createCoursePost(data);
       },
       error: function () {
         console.log("Could not retrieve course page");
