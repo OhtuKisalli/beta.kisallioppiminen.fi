@@ -1,11 +1,6 @@
 # Site settings
 title: Kisallioppiminen.fi
-baseurl: ""
-### site.url no longer needed? ###
-#url: "https://beta-kisallioppiminen.github.io"
-### Change this in production ###
-#backendbaseurl: "http://kurssihallinta.kisallioppiminen.fi/"
-backendbaseurl: "https://pure-inlet-98383.herokuapp.com/"
+backendbaseurl: "https://beta-kisallioppiminen.github.io/"
 
 # Build settings
 markdown: kramdown
