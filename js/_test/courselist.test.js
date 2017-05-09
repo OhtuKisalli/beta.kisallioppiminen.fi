@@ -1,5 +1,0 @@
-describe('Courselist class', function () {
-
-  
-
-});
